@@ -1,0 +1,23 @@
+Package: trenDi
+Title: Differenting testing on the trees output form TreeTerminus
+Version: 0.0.0.9000
+Authors@R: 
+    person("Noor Pratap", "Singh", "noorpratap@gmail.com", 
+      role = c("aut", "cre")),
+    person("Michael", "Love", "michaelisaiahlove@gmail.com", 
+      role = c("aut", "ctb")),
+    person("Rob", "Pato", "rob@cs.umd.edu", 
+      role = c("aut", "ctb"))  
+Description: What the package does (one paragraph).
+License: BSD-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports:
+  TreeSummarizedExperiment,
+  phangorn
+Remotes:
+  NPSDC/beaveR
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
