@@ -47,7 +47,8 @@ findCandNodes <- function(tse, nInd, signs, descAll, childNodes, mIRVThresh, pTh
     }
 }
 
-trenDi <- function(tse, x, pvalues, minP=0.80, mIRVThresh=0.4, alpha = 0.01, cores=1) {
+#' @export
+trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, cores=1) {
     stopifnot(is(tse, "TreeSummarizedExperiment"))
     stopifnot("meanInfRV" %in% colnames(mcols(tse)))
     stopifnot(is(pvalues, "numeric"))

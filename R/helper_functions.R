@@ -18,7 +18,7 @@ estimatePThresh <- function(pvalues, adjPval = 0.05) {
 #'
 
 #' @export
-computeSign <- function(y, x, minP = 0.8, pc = 5) {
+computeSign <- function(y, x, minP = 0.70, pc = 5) {
   stopifnot(is(y, "SummarizedExperiment"))
   stopifnot("infRepsScaled" %in% names(metadata(y)))
   stopifnot(metadata(y)[["infRepsScaled"]])
