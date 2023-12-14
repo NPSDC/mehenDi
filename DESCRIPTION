@@ -1,6 +1,6 @@
 Package: trenDi
 Title: Differenting testing on the trees output form TreeTerminus
-Version: 0.0.0.9000
+Version: 0.99.0
 Authors@R: c(
     person("Noor Pratap", "Singh", email="noorpratap@gmail.com", 
       role = c("aut", "cre")),

@@ -1,3 +1,4 @@
+## Checking the three base criteria at each node for it to be called candidate
 meetCriteria <- function(tse, nInd, signs, descAll, childNodes, mIRVThresh, pThresh) {
     tree <- rowTree(tse)
     pvalues <- mcols(tse)[["pvalue"]]
@@ -25,6 +26,7 @@ meetCriteria <- function(tse, nInd, signs, descAll, childNodes, mIRVThresh, pThr
     return(F)
 }
 
+## Return the underlying candidate node/s (could be the node itself) for a node
 findCandNodes <- function(tse, nInd, signs, descAll, childNodes, mIRVThresh, pThresh, cores=1) {
     tree <- rowTree(tse)
     pvalues <- mcols(tse)[["pvalue"]]
@@ -47,6 +49,18 @@ findCandNodes <- function(tse, nInd, signs, descAll, childNodes, mIRVThresh, pTh
     }
 }
 
+#' trenDi method: Finding differential nodes in the tree with no two nodes having an ancestor/descendant relationship
+#' @param tse TreeSummarizedExperiment which contains the scaled inferential replicates
+#' @param x character, the name of the condition variable. A factor for two group analysis
+#' @param pvalues numeric, pvalues for all the nodes in the tree
+#' @param minP numeric, value betweem 0 and 1, the proportion of the total inferential replicates 
+#' which should have the same sign change between conditions
+#' @param mIRVThresh numeric, minimum meanInfRV that a node should have for it to be considered for aggregation
+#' @param alpha numeric, the rate for the BH correction on the leaves which will be the pvalue threshold for deeming a node significant
+#' @param cores numeric, the number of cores that will be used during parallelization
+#'
+#' @return list that contains the selected candidate nodes and the pvalue threshold used for deeeming
+#' a node significant
 #' @export
 trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, cores=1) {
     stopifnot(is(tse, "TreeSummarizedExperiment"))
@@ -82,9 +96,9 @@ trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, cor
     
     signs <- computeSign(tse, x, minP=minP)
     sigs <- unlist(mclapply(innSigN, function(node) {
-        findCandNodes(tse, node, signs, descAll, childNodes, mIRVThresh, pThresh, cores)
+        findCandNodes(tse, node, signs, descAll, childNodes, mIRVThresh, pThresh, cores=1)
     }, mc.cores=cores))
         
     sigNodes <- c(sigNodes, sigs)
-    sigNodes
+    return(list("sigNodes" = sigNodes, "pThresh"=pThresh))
 }
