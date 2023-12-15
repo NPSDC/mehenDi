@@ -4,7 +4,7 @@
 \alias{computeSign}
 \title{Assigns a sign change between directions to a transcript/node}
 \usage{
-computeSign(y, x, minP = 0.8, pc = 5)
+computeSign(y, x, minP = 0.7, pc = 5)
 }
 \arguments{
 \item{y}{SummarizedExperiment containing the scaled inferential replicates}

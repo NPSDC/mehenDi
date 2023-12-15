@@ -61,6 +61,28 @@ findCandNodes <- function(tse, nInd, signs, descAll, childNodes, mIRVThresh, pTh
 #'
 #' @return list that contains the selected candidate nodes and the pvalue threshold used for deeeming
 #' a node significant
+#'
+#' @examples
+#' 
+#' dir <- system.file("extdata", package="brainSimSmall")
+#' clustFile <- file.path(dir, "cluster_nwk.txt")
+#' quantDir <- file.path(dir, "salmon_quants")
+#' samples <- as.vector(outer(c(1:6), c(1,2), function(x,y) paste(x,y,sep='_')))
+#' quantFiles <- file.path(quantDir, samples, 'quant.sf')
+#' coldata <- data.frame(files=quantFiles, names=samples, condition=factor(rep(1:2, each=6)))
+#' tse <- beaveR::buildTSE(treeTermFile = clustFile, coldata = coldata)
+#' tree <- TreeSummarizedExperiment::rowTree(tse)
+#' l <- length(tree$tip)
+#' 
+#' yAll <- beaveR::computeSizeFactors(tse)
+#' yAll <- beaveR::scInfReps(yAll)
+#' yAll <- fishpond::labelKeep(yAll)
+
+#' set.seed(1)
+#' yTxps <- fishpond::swish(yAll[1:l,], x="condition") 
+#' yInn <- fishpond::swish(yAll[(l+1):nrow(yAll),], x="condition")
+#' pvals <- c(mcols(yTxps)[["pvalues"]], mcols(yInn)[["pvalues"]])
+#'
 #' @export
 trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, cores=1) {
     stopifnot(is(tse, "TreeSummarizedExperiment"))
