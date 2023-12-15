@@ -1,5 +1,5 @@
 Package: trenDi
-Title: Differenting testing on the trees output form TreeTerminus
+Title: Differential testing on the forest of trees output form TreeTerminus
 Version: 0.99.0
 Authors@R: c(
     person("Noor Pratap", "Singh", email="noorpratap@gmail.com", 
@@ -10,7 +10,10 @@ Authors@R: c(
       role = c("aut", "ctb"))
     )
 Maintainer: Noor Pratap Singh <noorpratap@gmail.com>
-Description: What the package does (one paragraph).
+Description: This package provides a tree based differential testing for RNA-Seq data,
+  where the tree is obtained from \strong{TreeTerminus}. The candidate nodes can
+  consist of both leaves and inner nodes, with inner nodes comprising a susbet of 
+  transcripts that exhibit high uncertainty.
 License: MIT + file LICENSE
 Encoding: UTF-8
 VignetteBuilder: knitr
@@ -19,6 +22,7 @@ RoxygenNote: 7.2.3
 Imports:
   SummarizedExperiment,
   TreeSummarizedExperiment,
+  ape,
   phangorn,
   methods,
   matrixStats,
@@ -32,5 +36,6 @@ Remotes:
   NPSDC/beaveR,
   NPSDC/brainSimSmall
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    knitr
 Config/testthat/edition: 3
