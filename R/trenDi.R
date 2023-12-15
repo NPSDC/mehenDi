@@ -78,11 +78,10 @@ trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, cor
 
     tree <- rowTree(tse)
     pThresh <- estimatePThresh(pvalues[1:l], alpha)
-    print(pThresh)
 
     cNodes <- Descendants(tree, l+1, "child") ## Child nodes of root (l+1)
     leaves <- cNodes[cNodes <= l] ## children of root that are leaf
-    sigNodes <- leaves[which(pvalues[leaves] <= pThresh)] ## significant nodes with pvalue less than alpha
+    sigL <- leaves[which(pvalues[leaves] <= pThresh)] ## significant nodes with pvalue less than alpha
     innNodes <- setdiff(cNodes, leaves)
 
     descAll <- Descendants(tree, 1:nrow(tse), "all")
@@ -95,10 +94,10 @@ trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, cor
     l <- length(tree$tip.label)
     
     signs <- computeSign(tse, x, minP=minP)
-    sigs <- unlist(mclapply(innSigN, function(node) {
+    candNodes <- unlist(mclapply(innSigN, function(node) {
         findCandNodes(tse, node, signs, descAll, childNodes, mIRVThresh, pThresh, cores=1)
     }, mc.cores=cores))
         
-    sigNodes <- c(sigNodes, sigs)
-    return(list("sigNodes" = sigNodes, "pThresh"=pThresh))
+    candNodes <- c(sigL, candNodes)
+    return(list("candNodes" = candNodes, "pThresh"=pThresh))
 }
