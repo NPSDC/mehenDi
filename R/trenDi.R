@@ -90,6 +90,7 @@ trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, cor
     stopifnot(is(pvalues, "numeric"))
     stopifnot(all(pvalues <= 1, na.rm=T) & all(pvalues >= 0, na.rm=T))
     stopifnot(is(minP,"numeric"))
+    stopifnot(minP>=0 & minP <= 1)
     stopifnot(is(mIRVThresh,"numeric"))
     stopifnot(is(alpha,"numeric"))
     stopifnot(alpha>=0 & alpha <= 1)
@@ -99,6 +100,7 @@ trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, cor
     mcols(tse)[["pvalue"]] <- pvalues
 
     tree <- rowTree(tse)
+    l <- length(tree$tip.label)
     pThresh <- estimatePThresh(pvalues[1:l], alpha)
 
     cNodes <- Descendants(tree, l+1, "child") ## Child nodes of root (l+1)
@@ -111,9 +113,6 @@ trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, cor
     innSigN <- innNodes[which(sapply(descAll[innNodes], function(nodes) { ## branches that contain atleast 1 sig node
         sum(pvalues[nodes] <= pThresh, na.rm=T)>0 
     }))]
-
-
-    l <- length(tree$tip.label)
     
     signs <- computeSign(tse, x, minP=minP)
     candNodes <- unlist(mclapply(innSigN, function(node) {
