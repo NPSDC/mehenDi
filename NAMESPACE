@@ -2,6 +2,7 @@
 
 export(computeSign)
 export(trenDi)
+import(TreeSummarizedExperiment)
 import(fishpond)
 importFrom(Matrix,rowMeans)
 importFrom(S4Vectors,"metadata<-")

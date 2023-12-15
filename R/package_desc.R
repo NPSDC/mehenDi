@@ -11,7 +11,6 @@
 #' }
 #' @import fishpond
 #' @import TreeSummarizedExperiment
-#' @import beaveR
 #' @importFrom methods is as slot
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' assayNames assayNames<- assay assay<- assays assays<-

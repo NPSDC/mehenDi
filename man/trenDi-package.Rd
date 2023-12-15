@@ -3,5 +3,17 @@
 \docType{package}
 \name{trenDi-package}
 \alias{trenDi-package}
-\title{trenDi: downstream methods and tools for expression data}
+\title{trenDi: Tree-based differrential testing for RNA-Seq}
+\description{
+This package provides a tree based differential testing method for RNA-Seq
+data, where the tree is obtained from \strong{TreeTerminus}. The
+candidate nodes can consist of both leaves and inner nodes, with
+inner nodes comprising a subset of transcripts that exhibit high uncertainty.
+}
+\details{
+The main function is:
+\itemize{
+\item \code{\link{trenDi}} - performs tree-based differential testing
+}
+}
 \keyword{package}

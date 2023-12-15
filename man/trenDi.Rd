@@ -29,3 +29,24 @@ a node significant
 \description{
 trenDi method: Finding differential nodes in the tree with no two nodes having an ancestor/descendant relationship
 }
+\examples{
+
+dir <- system.file("extdata", package="brainSimSmall")
+clustFile <- file.path(dir, "cluster_nwk.txt")
+quantDir <- file.path(dir, "salmon_quants")
+samples <- as.vector(outer(c(1:6), c(1,2), function(x,y) paste(x,y,sep='_')))
+quantFiles <- file.path(quantDir, samples, 'quant.sf')
+coldata <- data.frame(files=quantFiles, names=samples, condition=factor(rep(1:2, each=6)))
+tse <- beaveR::buildTSE(treeTermFile = clustFile, coldata = coldata)
+tree <- TreeSummarizedExperiment::rowTree(tse)
+l <- length(tree$tip)
+
+yAll <- beaveR::computeSizeFactors(tse)
+yAll <- beaveR::scInfReps(yAll)
+yAll <- fishpond::labelKeep(yAll)
+set.seed(1)
+yTxps <- fishpond::swish(yAll[1:l,], x="condition") 
+yInn <- fishpond::swish(yAll[(l+1):nrow(yAll),], x="condition")
+pvals <- c(mcols(yTxps)[["pvalues"]], mcols(yInn)[["pvalues"]])
+
+}
