@@ -82,7 +82,8 @@ findCandNodes <- function(tse, nInd, signs, descAll, childNodes, mIRVThresh, pTh
 #' yTxps <- fishpond::swish(yAll[1:l,], x="condition") 
 #' yInn <- fishpond::swish(yAll[(l+1):nrow(yAll),], x="condition")
 #' pvals <- c(mcols(yTxps)[["pvalues"]], mcols(yInn)[["pvalues"]])
-#'
+#' tD <- trenDi::trenDi(yAll, x="condition", pvalues = pvals,
+#'                    minP=0.7, mIRVThresh=0.4, alpha=0.01)
 #' @export
 trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, cores=1) {
     stopifnot(is(tse, "TreeSummarizedExperiment"))
