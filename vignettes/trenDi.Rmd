@@ -107,3 +107,10 @@ gy <- fishpond::swish(gy, x="condition")
 print(dim(gy))
 print(table(mcols(gy)[["qvalue"]] < 0.01))
 ```
+
+## Exploration of a node output by trenDi
+```{r}
+fishpond::plotInfReps(yAll, tD[["candNodes"]][1], x="condition")
+nodeInf <- beaveR::findNodeInformation(yAll, node = tD[["candNodes]][1], type = "tips")
+print(nodeInf)
+```
