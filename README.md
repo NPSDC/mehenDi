@@ -55,3 +55,10 @@ The input to **trenDi** is the *TreeSummarizedExperiment* (tse) object. This obj
 which requires the same input as [tximeta](https://github.com/thelovelab/tximeta) and the forest file produced by [TreeTerminus](https://github.com/COMBINE-lab/TreeTerminus).
 Among the other inputs are the p-values corresponding to each node in tree belonging to the `tse` object, which here in this example have been generated using `swish` in the
 package [fishpond](https://github.com/thelovelab/fishpond).
+
+#### Exploration of the nodes output by trenDi
+```{r}
+fishpond::plotInfReps(yAll, tD[["candNodes]][1], x="condition")
+nodeInf <- beaveR::findNodeInformation(yAll, node = tD[["candNodes]][1], type = "tips")
+print(nodeInf)
+```
