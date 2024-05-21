@@ -10,6 +10,7 @@ and inner nodes, with inner nodes representing a set of transcripts that exhibit
 ### Installation
 ```
 devtools::install_github("NPSDC/trenDi")
+devtools::install_github("NPSDC/brainSimSmall") ## Download the package with a small dataset
 ```
 
 ### Quick start

@@ -54,9 +54,10 @@ findCandNodes <- function(tse, nInd, signs, descAll, childNodes, mIRVThresh, pTh
 #' @param x character, the name of the condition variable. A factor for two group analysis
 #' @param pvalues numeric, pvalues for all the nodes in the tree
 #' @param minP numeric, value betweem 0 and 1, the proportion of the total inferential replicates 
-#' which should have the same sign change between conditions
-#' @param mIRVThresh numeric, minimum meanInfRV that a node should have for it to be considered for aggregation
-#' @param alpha numeric, the rate for the BH correction on the leaves which will be the pvalue threshold for deeming a node significant
+#' which should have the same sign change between conditions (default 0.7)
+#' @param mIRVThresh numeric, minimum meanInfRV that a node should have for it to be considered for aggregation (default 0.4)
+#' @param alpha numeric, the rate for the BH correction on the leaves which will be the pvalue threshold for deeming a node significant, wont be used if pThresh is set to some value
+#' @param pThresh numeric, pvalue threshold for climbing, default is NULL since pThresh is computed automatically based on alpha, if not set to NULL then this pvalue threshold will used for deeming a node significant
 #' @param cores numeric, the number of cores that will be used during parallelization
 #'
 #' @return list that contains the selected candidate nodes and the pvalue threshold used for deeeming
@@ -82,9 +83,10 @@ findCandNodes <- function(tse, nInd, signs, descAll, childNodes, mIRVThresh, pTh
 #' yTxps <- fishpond::swish(yAll[1:l,], x="condition") 
 #' yInn <- fishpond::swish(yAll[(l+1):nrow(yAll),], x="condition")
 #' pvals <- c(mcols(yTxps)[["pvalues"]], mcols(yInn)[["pvalues"]])
-#'
+#' tD <- trenDi::trenDi(yAll, x="condition", pvalues = pvals,
+#'                    minP=0.7, mIRVThresh=0.4, alpha=0.01)
 #' @export
-trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, cores=1) {
+trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, pThresh = NULL, cores=1) {
     stopifnot(is(tse, "TreeSummarizedExperiment"))
     stopifnot("meanInfRV" %in% colnames(mcols(tse)))
     stopifnot(is(pvalues, "numeric"))
@@ -97,11 +99,14 @@ trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, cor
     stopifnot(is(x, "character"))
     stopifnot(x %in% colnames(colData(tse)))
     stopifnot(length(pvalues)==nrow(tse))
+    if(!is.null(pThresh)){
+        stopifnot(pThresh >= 0 & pThresh <= 1)
+    }
     mcols(tse)[["pvalue"]] <- pvalues
 
     tree <- rowTree(tse)
     l <- length(tree$tip.label)
-    pThresh <- estimatePThresh(pvalues[1:l], alpha)
+    pThresh <- ifelse(is.null(pThresh), estimatePThresh(pvalues[1:l], alpha), pThresh)
 
     cNodes <- Descendants(tree, l+1, "child") ## Child nodes of root (l+1)
     leaves <- cNodes[cNodes <= l] ## children of root that are leaf

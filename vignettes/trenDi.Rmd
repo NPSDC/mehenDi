@@ -18,8 +18,9 @@ knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
 # Installation
-```{r}
-devtools::install_github("NPSDC/trenDi", "dev")
+```{r eval=FALSE}
+devtools::install_github("NPSDC/trenDi")
+devtools::install_github("NPSDC/brainSimSmall") ## Download the package with a small dataset
 ```
 
 # trenDi
@@ -38,7 +39,7 @@ can be replaced by bootstrap sampling. The dataset consists of 12 samples belong
 ## Loading data 
 We first load the data using [beaveR](https://github.com/NPSDC/beaveR) to create *TreeSummarizedExperiment* object. 
 The leaves consist of the transcripts.
-```{r eval=FALSE, message=FALSE, warning=FALSE}
+```{r eval=TRUE, message=FALSE, warning=FALSE}
 dir <- system.file("extdata", package="brainSimSmall")
 clustFile <- file.path(dir, "cluster_nwk.txt")
 quantDir <- file.path(dir, "salmon_quants")
@@ -55,12 +56,12 @@ l <- length(tree$tip)
 ## Differential transcript expression
 We first perform differential testing on the transcripts using Swish. We can see the transcripts
 that are called significant at the 0.01 FDR threshold.
-```{r eval=FALSE, message=FALSE, warning=FALSE}
+```{r eval=TRUE, message=FALSE, warning=FALSE}
 set.seed(1)
 yTxps <- tse[1:l,]
-yTxps <- fishpond::scaleInfReps(yTxps)
+yTxps <- fishpond::scaleInfReps(yTxps, quiet=T)
 yTxps <- fishpond::labelKeep(yTxps)
-yTxps <- fishpond::swish(yTxps, x="condition")
+yTxps <- fishpond::swish(yTxps, x="condition", quiet=T)
 yTxps <- yTxps[match(rownames(yTxps), tree$tip.label),]
 print(table(mcols(yTxps)[["qvalue"]] < 0.01))
 ```
@@ -81,15 +82,14 @@ confident direction of sign-change have the same direction change between condit
 by the \strong(minP) parameters and looks at the inferential replicates. Finally, we also want that the children nodes
 of a candidate, tp have uncertain abundance estimates (governed by \strong(meanInfRV)).
 
-```{r eval=FALSE, message=FALSE, warning=FALSE}
+```{r eval=TRUE, message=FALSE, warning=FALSE}
 suppressPackageStartupMessages(library(trenDi))
 set.seed(1)
-yAll <- beaveR::computeSizeFactors(tse)
-yAll <- beaveR::scInfReps(yAll)
+yAll <- beaveR::computeSizeFactors(tse, quiet=TRUE)
+yAll <- beaveR::scInfReps(yAll, quiet=TRUE)
 yAll <- fishpond::labelKeep(yAll)
-metadata(yAll)$infRepsScaled <- TRUE
 yInn <- yAll[(l+1):nrow(yAll),]
-yInn <- fishpond::swish(yInn, x="condition")
+yInn <- fishpond::swish(yInn, x="condition", quiet=TRUE)
 
 pvals <- c(mcols(yTxps)[["pvalue"]], mcols(yInn)[["pvalue"]])
 tD <- trenDi::trenDi(yAll, x="condition", pvalues = pvals,
@@ -99,18 +99,24 @@ print(sum(tD$candNodes > l)) ## Number of inner nodes that are candidates
 ```
 
 ## Differential gene expression
-```{r eval=FALSE, message=FALSE, warning=FALSE}
-gy <- tximeta::summarizeToGene(tse[1:l,])
-gy <- fishpond::scaleInfReps(gy)
+```{r eval=TRUE, message=FALSE, warning=FALSE}
+yAllTxps <- tximeta::tximeta(coldata)
+gy <- tximeta::summarizeToGene(yAllTxps)
+gy <- fishpond::scaleInfReps(gy, quiet=TRUE)
 gy <- fishpond::labelKeep(gy)
-gy <- fishpond::swish(gy, x="condition")
+gy <- fishpond::swish(gy, x="condition", quiet=TRUE)
 print(dim(gy))
 print(table(mcols(gy)[["qvalue"]] < 0.01))
 ```
 
+<<<<<<< HEAD
 ## Exploration of a node output by trenDi
 ```{r}
 fishpond::plotInfReps(yAll, tD[["candNodes"]][1], x="condition")
 nodeInf <- beaveR::findNodeInformation(yAll, node = tD[["candNodes]][1], type = "tips")
 print(nodeInf)
+=======
+```{r}
+sessionInfo()
+>>>>>>> dev
 ```
