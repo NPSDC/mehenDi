@@ -19,20 +19,20 @@ knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
 ```
 # Installation
 ```{r eval=FALSE}
-devtools::install_github("NPSDC/trenDi")
+devtools::install_github("NPSDC/mehenDi")
 devtools::install_github("NPSDC/brainSimSmall") ## Download the package with a small dataset
 ```
 
-# trenDi
-The *trenDi* method performs differential testing use the transcripts-tree obtained from *TreeTerminus*.
+# mehenDi
+The *mehenDi* method performs differential testing use the transcripts-tree obtained from *TreeTerminus*.
 The transcripts are arranged in a way such that the uncertainty decreases on ascending the tree, with the
-inner nodes comprising transcripts groups. *trenDi* aims to leverage the tree structure to find differential
-signal in the tree which might get lost due to uncertainty. The candidate nodes can consist of both transcripts
+inner nodes comprising transcripts groups. *mehenDi* aims to leverage the tree structure to find differential
+signal in the tree which might get lost due to uncertainty. The selected nodes can consist of both transcripts
 and inner nodes, with inner nodes representing a set of transcripts that exhibit high uncertainty.
 
 # Quick start
 
-We demonstrate *trenDi* on a small simulated RNA-Seq dataset in the [brainSimSmall](https://github.com/NPSDC/brainSimSmall) package.
+We demonstrate *mehenDi* on a small simulated RNA-Seq dataset in the [brainSimSmall](https://github.com/NPSDC/brainSimSmall) package.
 We have *Salmon* quantified counts for the samples, with 100 inferential replicates generated using Gibbs Sampling. *Note* Gibbs Sampling
 can be replaced by bootstrap sampling. The dataset consists of 12 samples belonging to two-groups, with 6 samples in each.
 
@@ -66,24 +66,23 @@ yTxps <- yTxps[match(rownames(yTxps), tree$tip.label),]
 print(table(mcols(yTxps)[["qvalue"]] < 0.01))
 ```
 
-## Running trenDi
-We next run *trenDi* on the object *tse* created above. The pipeline is similar to Swish, where first
+## Running mehenDi
+We next run *mehenDi* on the object *tse* created above. The pipeline is similar to Swish, where first
 the data is normalized (we used median-ratio scaling) in this example. It has been broken down
 into two steps, in the first we compute the size factors and then use the computed size factors for scaling the
 inferential replicates. We have used *Swish* for computing the pvalues, however we compute them separately for
 the leaves and the inner nodes. This is because due to lower uncertainty, the width of the distribution of the 
 test-statistic of inner nodes is wider and thus have smaller p-values compared to the inner nodes.
 
-*trenDi* outputs a set of candidate nodes based on a filtering criteria. Once a node
+*mehenDi* outputs a set of selected nodes based on a filtering criteria. Once a node
 that has a p-value less than a certain threshold (governed by \strong(alpha)) is found, we check for
 different criteria. First, nodes should consist of atleast one child node that has a p-value larger than
 a threshold, otherwise we are overaggregating. We then check if all the underlying descendant nodes that have a 
 confident direction of sign-change have the same direction change between conditions. The confidence is determined
-by the \strong(minP) parameters and looks at the inferential replicates. Finally, we also want that the children nodes
-of a candidate, tp have uncertain abundance estimates (governed by \strong(meanInfRV)).
+by the \strong(minP) parameters and looks at the inferential replicates. Finally, we also want that the children nodes of a selected node, to have uncertain abundance estimates (governed by \strong(meanInfRV)).
 
 ```{r eval=TRUE, message=FALSE, warning=FALSE}
-suppressPackageStartupMessages(library(trenDi))
+suppressPackageStartupMessages(library(mehenDi))
 set.seed(1)
 yAll <- beaveR::computeSizeFactors(tse, quiet=TRUE)
 yAll <- beaveR::scInfReps(yAll, quiet=TRUE)
@@ -92,10 +91,10 @@ yInn <- yAll[(l+1):nrow(yAll),]
 yInn <- fishpond::swish(yInn, x="condition", quiet=TRUE)
 
 pvals <- c(mcols(yTxps)[["pvalue"]], mcols(yInn)[["pvalue"]])
-tD <- trenDi::trenDi(yAll, x="condition", pvalues = pvals,
+tD <- mehenDi::mehenDi(yAll, x="condition", pvalues = pvals,
                     minP=0.7, mIRVThresh=0.4, alpha=0.01)
-print(length(tD$candNodes)) ## Total number of candidate nodes
-print(sum(tD$candNodes > l)) ## Number of inner nodes that are candidates
+print(length(tD$selNodes)) ## Total number of selected nodes
+print(sum(tD$selNodes > l)) ## Number of inner nodes that are selected
 ```
 
 ## Differential gene expression
@@ -109,14 +108,13 @@ print(dim(gy))
 print(table(mcols(gy)[["qvalue"]] < 0.01))
 ```
 
-<<<<<<< HEAD
-## Exploration of a node output by trenDi
+## Exploration of a node output by mehenDi
 ```{r}
-fishpond::plotInfReps(yAll, tD[["candNodes"]][1], x="condition")
-nodeInf <- beaveR::findNodeInformation(yAll, node = tD[["candNodes]][1], type = "tips")
+fishpond::plotInfReps(yAll, tD[["selNodes"]][1], x="condition")
+nodeInf <- beaveR::findNodeInformation(yAll, node = tD[["selNodes"]][1], type = "tips")
 print(nodeInf)
-=======
+```
+
 ```{r}
 sessionInfo()
->>>>>>> dev
 ```

@@ -1,4 +1,4 @@
-test_that("test_trenDi", {
+test_that("test_mehenDi", {
   dir <- system.file("extdata", package="brainSimSmall")
   clustFile <- file.path(dir, "cluster_nwk.txt")
   quantDir <- file.path(dir, "salmon_quants")
@@ -9,21 +9,21 @@ test_that("test_trenDi", {
   clustFile <- file.path(dir, "cluster_nwk.txt")
   tse <- suppressPackageStartupMessages(beaveR::buildTSE(clustFile, coldata))
   tree <- suppressPackageStartupMessages(TreeSummarizedExperiment::rowTree(tse))
-  
+
   ts <- beaveR::computeSizeFactors(tse)
   ts <- beaveR::scInfReps(ts)
   x <- "condition"
   pvals <- runif(nrow(tse))
-  expect_error(trenDi(pvals, "condition", pvals, 0.70, 0.40, 0.01))
-  expect_error(trenDi(tse, "codition", pvals, 0.70, 0.40, 0.01))
-  expect_error(trenDi(tse, "condition", pvals+100, 0.40, 0.40, 0.01))
-  expect_error(trenDi(tse, "condition", pvals, 0.70, 0.40, 1.2))
-  expect_error(trenDi(tse, "condition", pvals[1:100], 0.70, 0.40, 0.01))
-  expect_error(trenDi(tse, "condition", pvals, 1.2, 0.40, 0.01))
-  expect_error(trenDi(tse, "condition", pvals, "0.2", 0.40, 0.01))
+  expect_error(mehenDi(pvals, "condition", pvals, 0.70, 0.40, 0.01))
+  expect_error(mehenDi(tse, "codition", pvals, 0.70, 0.40, 0.01))
+  expect_error(mehenDi(tse, "condition", pvals+100, 0.40, 0.40, 0.01))
+  expect_error(mehenDi(tse, "condition", pvals, 0.70, 0.40, 1.2))
+  expect_error(mehenDi(tse, "condition", pvals[1:100], 0.70, 0.40, 0.01))
+  expect_error(mehenDi(tse, "condition", pvals, 1.2, 0.40, 0.01))
+  expect_error(mehenDi(tse, "condition", pvals, "0.2", 0.40, 0.01))
 
   ts <- fishpond::labelKeep(tse)
   metadata(ts)[["infRepsScaled"]] <- TRUE
-  tC <- trenDi(ts, "condition", pvals, 0.7, 0.40, 0.01)
+  tC <- mehenDi(ts, "condition", pvals, 0.7, 0.40, 0.01)
   expect_equal(length(tC), 2)
 })

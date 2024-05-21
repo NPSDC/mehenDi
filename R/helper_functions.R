@@ -1,7 +1,7 @@
 estimatePThresh <- function(pvalues, adjPval = 0.05) {
   adPval <- which.min(abs(p.adjust(pvalues, method = "BH") - adjPval))
   pvalues[adPval]
-    
+
 }
 
 #' Assigns a sign change between directions to a transcript/node
@@ -46,3 +46,7 @@ computeSign <- function(y, x, minP = 0.70, pc = 5) {
   signs[rowMeans(!pos) >= minP] = -1
   return(signs)
 }
+
+defunct = function(msg = "This function is depreciated") function(...) return(stop(msg))
+#' @export
+trenDi = defunct("trenDi changed name to mehenDi")

@@ -1,13 +1,13 @@
-#' trenDi: Tree-based differrential testing for RNA-Seq
+#' mehenDi: Tree-based differrential testing for RNA-Seq
 #'
 #' This package provides a tree based differential testing method for RNA-Seq
 #' data, where the tree is obtained from \strong{TreeTerminus}. The
-#' candidate nodes can consist of both leaves and inner nodes, with 
+#' candidate nodes can consist of both leaves and inner nodes, with
 #' inner nodes comprising a subset of transcripts that exhibit high uncertainty.
 #'
 #' The main function is:
 #' \itemize{
-#' \item \code{\link{trenDi}} - performs tree-based differential testing
+#' \item \code{\link{mehenDi}} - performs tree-based differential testing
 #' }
 #' @import fishpond
 #' @import TreeSummarizedExperiment
@@ -23,9 +23,9 @@
 #' @importFrom phangorn Descendants Ancestors
 #' @importFrom parallel mclapply
 #' @importFrom stats p.adjust
-#' 
+#'
 #' @docType package
-#' @name trenDi-package
+#' @name mehenDi-package
 #' @aliases trenDi-package
 #' @keywords package
 NULL
