@@ -1,3 +1,6 @@
+#' @keywords internal
+"_PACKAGE"
+
 #' mehenDi: Tree-based differrential testing for RNA-Seq
 #'
 #' This package provides a tree based differential testing method for RNA-Seq
@@ -25,9 +28,6 @@
 #' @importFrom parallel mclapply
 #' @importFrom stats p.adjust
 #' @importFrom abind abind
-#'
-#' @docType package
 #' @name mehenDi-package
 #' @aliases trenDi-package
-#' @keywords package
 NULL

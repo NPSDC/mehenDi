@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(trenDi)
+library(mehenDi)
 
-test_check("trenDi")
+test_check("mehenDi")

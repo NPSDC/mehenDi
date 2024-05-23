@@ -58,7 +58,7 @@ yAll <- fishpond::labelKeep(yAll)
 set.seed(1)
 yTxps <- fishpond::swish(yAll[1:l,], x="condition")
 yInn <- fishpond::swish(yAll[(l+1):nrow(yAll),], x="condition")
-pvals <- c(mcols(yTxps)[["pvalues"]], mcols(yInn)[["pvalues"]])
-tD <- mehenDi::mehenDi(yAll, x="condition", pvalues = pvals,
+pvals <- c(mcols(yTxps)[["pvalue"]], mcols(yInn)[["pvalue"]])
+tD <- mehenDi(yAll, x="condition", pvalues = pvals,
                    minP=0.7, mIRVThresh=0.4, alpha=0.01)
 }

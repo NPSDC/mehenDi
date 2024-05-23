@@ -64,5 +64,9 @@ computeSign <- function(y, x, minP = 0.70, pc = 5) {
 }
 
 defunct = function(msg = "This function is depreciated") function(...) return(stop(msg))
+#' Function is deprecated in favor of mehenDi
+#' @inheritParams mehenDi
 #' @export
-trenDi = defunct("trenDi changed name to mehenDi")
+trenDi <- function(tse, x, pvalues, minP=0.70, mIRVThresh=0.4, alpha = 0.01, pThresh = NULL, cores=1) {
+  defunct("Name of trenDi has been changed to mehenDi, call mehenDi")
+}
