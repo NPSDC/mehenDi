@@ -4,6 +4,22 @@ estimatePThresh <- function(pvalues, adjPval = 0.05) {
 
 }
 
+# The code for this function has been taken from the package fishpond, where infRepError is not an exported function
+infRepError <- function(infRepIdx) {
+  if (length(infRepIdx) == 0) {
+    stop("there are no inferential replicates in the assays of 'y';
+see Quick Start in the swish vignette for details")
+  }
+}
+
+# The code for this function has been taken from the package fishpond, where getInfReps is not an exported function
+getInfReps <- function(ys) {
+  infRepIdx <- grep("infRep",assayNames(ys))
+  infRepError(infRepIdx)
+  infReps <- assays(ys)[infRepIdx]
+  abind(as.list(infReps), along=3)
+}
+
 #' Assigns a sign change between directions to a transcript/node
 #'
 #' @param y SummarizedExperiment containing the scaled inferential replicates
@@ -25,7 +41,7 @@ computeSign <- function(y, x, minP = 0.70, pc = 5) {
   stopifnot(is(x, "character"))
   stopifnot(x %in% colnames(colData(y)))
 
-  infRepsArray <- fishpond:::getInfReps(y)
+  infRepsArray <- getInfReps(y)
   condition <- colData(y)[[x]]
   stopifnot(is.factor(condition))
   stopifnot(nlevels(condition) == 2)

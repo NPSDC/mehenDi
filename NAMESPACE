@@ -2,6 +2,7 @@
 
 export(computeSign)
 export(mehenDi)
+export(trenDi)
 import(TreeSummarizedExperiment)
 import(fishpond)
 importFrom(Matrix,rowMeans)

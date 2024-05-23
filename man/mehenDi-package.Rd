@@ -17,4 +17,14 @@ The main function is:
 \item \code{\link{mehenDi}} - performs tree-based differential testing
 }
 }
+\author{
+\strong{Maintainer}: Noor Pratap Singh \email{noorpratap@gmail.com}
+
+Authors:
+\itemize{
+  \item Michael Love \email{michaelisaiahlove@gmail.com} [contributor]
+  \item Rob Pato \email{rob@cs.umd.edu} [contributor]
+}
+
+}
 \keyword{package}

@@ -11,6 +11,7 @@
 #' }
 #' @import fishpond
 #' @import TreeSummarizedExperiment
+#' @import beaveR
 #' @importFrom methods is as slot
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' assayNames assayNames<- assay assay<- assays assays<-
@@ -23,6 +24,7 @@
 #' @importFrom phangorn Descendants Ancestors
 #' @importFrom parallel mclapply
 #' @importFrom stats p.adjust
+#' @importFrom abind abind
 #'
 #' @docType package
 #' @name mehenDi-package

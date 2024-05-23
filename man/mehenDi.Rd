@@ -2,7 +2,6 @@
 % Please edit documentation in R/mehenDi.R
 \name{mehenDi}
 \alias{mehenDi}
-\alias{trenDi}
 \title{mehenDi method: Finding differential nodes in the tree with no two nodes having an ancestor/descendant relationship}
 \usage{
 mehenDi(

@@ -24,7 +24,7 @@ samples <- as.vector(outer(c(1:6), c(1,2), function(x,y) paste(x,y,sep='_')))
 quantFiles <- file.path(quantDir, samples, 'quant.sf')
 coldata <- data.frame(files=quantFiles, names=samples, condition=factor(rep(1:2, each=6)))
 
-tse <- beaveR::buildTSE(treeTermFile = clustFile, coldata = coldata) ## could be the path to any Salmon quantified RNA-Seq experiment and the corresponding forest file produced by TreeTerminus
+tse <- beaveR::buildTSE(treeTermFile = clustFile, coldata = coldata) ## the path to a directory that contains Salmon quantified RNA-Seq samples and the corresponding forest file produced by TreeTerminus
 print(tse)
 tree <- TreeSummarizedExperiment::rowTree(tse)
 print(tree)

@@ -21,7 +21,9 @@ knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
 ```{r eval=FALSE}
 devtools::install_github("NPSDC/mehenDi")
 devtools::install_github("NPSDC/brainSimSmall") ## Download the package with a small dataset
+suppressPackageStartupMessages(library(mehenDi))
 ```
+We also install the package *brainSimSmall* which is a small RNA-Seq dataset, on which this example is run.
 
 # mehenDi
 The *mehenDi* method performs differential testing use the transcripts-tree obtained from *TreeTerminus*.
@@ -91,7 +93,7 @@ yInn <- yAll[(l+1):nrow(yAll),]
 yInn <- fishpond::swish(yInn, x="condition", quiet=TRUE)
 
 pvals <- c(mcols(yTxps)[["pvalue"]], mcols(yInn)[["pvalue"]])
-tD <- mehenDi::mehenDi(yAll, x="condition", pvalues = pvals,
+tD <- mehenDi(yAll, x="condition", pvalues = pvals,
                     minP=0.7, mIRVThresh=0.4, alpha=0.01)
 print(length(tD$selNodes)) ## Total number of selected nodes
 print(sum(tD$selNodes > l)) ## Number of inner nodes that are selected
