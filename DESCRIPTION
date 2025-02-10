@@ -10,6 +10,7 @@ Authors@R: c(
       role = c("aut", "ctb"))
     )
 Maintainer: Noor Pratap Singh <noorpratap@gmail.com>
+URL: https://github.com/NPSDC/mehenDi
 Description: This package provides a tree based differential testing for RNA-Seq data,
   where the tree is obtained from \strong{TreeTerminus}. The candidate nodes can
   consist of both leaves and inner nodes, with inner nodes comprising a susbet of 
