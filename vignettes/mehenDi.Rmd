@@ -15,9 +15,11 @@ vignette: |
 
 ```{r setup, echo=FALSE}
 knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
-                      message=FALSE, error=FALSE, warning=FALSE)
+                      message=FALSE, error=FALSE, warning=FALSE,
+		      eval=TRUE, collapse=TRUE, comment = "#>")
 ```
 # Installation
+
 ```{r eval=FALSE}
 devtools::install_github("NPSDC/mehenDi")
 devtools::install_github("NPSDC/brainSimSmall") ## Download the package with a small dataset
