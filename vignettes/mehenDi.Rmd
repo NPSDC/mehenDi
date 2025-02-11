@@ -67,7 +67,7 @@ yTxps <- fishpond::scaleInfReps(yTxps, quiet=T)
 yTxps <- fishpond::labelKeep(yTxps)
 yTxps <- fishpond::swish(yTxps, x="condition", quiet=T)
 yTxps <- yTxps[match(rownames(yTxps), tree$tip.label),]
-print(table(mcols(yTxps)[["qvalue"]i] < 0.05))
+print(sum(mcols(yTxps)[["qvalue"]] < 0.05))
 ```
 
 ## Running mehenDi
@@ -203,7 +203,6 @@ pTxp <- as.grob(function() fishpond::plotInfReps(yAll, txpMin, x = "condition", 
 pInn <- as.grob(function() fishpond::plotInfReps(yAll, node, x = "condition", legend=TRUE,
                               main=txpMin, legendTitle=TRUE, legendCex=cex,	
                              legendPos = legPos))
-
 ```
 
 ### Extracting plot for tree
