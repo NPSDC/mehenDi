@@ -13,7 +13,7 @@ vignette: |
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, echo=FALSE, results="hide"}
+```{r setup, echo=FALSE}
 knitr::opts_chunk$set(tidy=FALSE, cache=FALSE, dev="png",
                       message=FALSE, error=FALSE, warning=FALSE)
 ```
@@ -65,7 +65,7 @@ yTxps <- fishpond::scaleInfReps(yTxps, quiet=T)
 yTxps <- fishpond::labelKeep(yTxps)
 yTxps <- fishpond::swish(yTxps, x="condition", quiet=T)
 yTxps <- yTxps[match(rownames(yTxps), tree$tip.label),]
-print(table(mcols(yTxps)[["qvalue"]] < 0.01))
+print(table(mcols(yTxps)[["qvalue"]i] < 0.05))
 ```
 
 ## Running mehenDi
@@ -94,7 +94,7 @@ yInn <- fishpond::swish(yInn, x="condition", quiet=TRUE)
 
 pvals <- c(mcols(yTxps)[["pvalue"]], mcols(yInn)[["pvalue"]])
 tD <- mehenDi(yAll, x="condition", pvalues = pvals,
-                    minP=0.7, mIRVThresh=0.4, alpha=0.01)
+                    minP=0.7, mIRVThresh=0.4, alpha=0.05)
 print(length(tD$selNodes)) ## Total number of selected nodes
 print(sum(tD$selNodes > l)) ## Number of inner nodes that are selected
 ```
@@ -107,14 +107,125 @@ gy <- fishpond::scaleInfReps(gy, quiet=TRUE)
 gy <- fishpond::labelKeep(gy)
 gy <- fishpond::swish(gy, x="condition", quiet=TRUE)
 print(dim(gy))
-print(table(mcols(gy)[["qvalue"]] < 0.01))
+print(table(mcols(gy)[["qvalue"]] < 0.05))
 ```
 
 ## Exploration of a node output by mehenDi
 ```{r}
-fishpond::plotInfReps(yAll, tD[["selNodes"]][1], x="condition")
 nodeInf <- beaveR::findNodeInformation(yAll, node = tD[["selNodes"]][1], type = "tips")
 print(nodeInf)
+
+### Distribution of the height of the nodes output by mehenDi
+print(table(ape::node.depth(tree, 2)[tD[["selNodes"]]]))
+```
+
+## Visualzing the transcript trees for the selected nodes output by mehenDi
+We use the library `plotGardner` for plotting the transcripts of a gene and `ggtree` for the corresponding trees
+
+### Loading packages and preparing data for plotting
+```{r}
+suppressPackageStartupMessages(library(org.Hs.eg.db))
+suppressPackageStartupMessages(library(TxDb.Hsapiens.UCSC.hg38.knownGene))
+suppressPackageStartupMessages(library(plyranges))
+suppressPackageStartupMessages(library(ggtree))
+suppressPackageStartupMessages(library("grid"))
+suppressPackageStartupMessages(library("ggplotify"))
+suppressPackageStartupMessages(library("ggplot2"))
+suppressPackageStartupMessages(library("ggpubr"))
+
+txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
+txpHuman <- transcripts(txdb)
+
+txpHuman <- txpHuman %>%
+  mutate(tx_id = as.character(tx_id))
+
+txpHuman <- txpHuman %>%
+  mutate(gene_id = mapIds(
+           txdb, keys=tx_id,
+           column="GENEID", keytype="TXID")
+         ) %>%
+  filter(!is.na(gene_id))
+txpHuman <- txpHuman %>%
+  mutate(ensID = mapIds(
+           org.Hs.eg.db, keys=gene_id,
+           column="ENSEMBL", keytype="ENTREZID")
+         ) %>%
+  filter(!is.na(ensID))
+txpHuman <- txpHuman %>%
+                filter(tx_name %in% intersect(tree$tip, mcols(txpHuman)[["tx_name"]]))
+
+
+genesHuman <- genes(txdb)
+genesHuman <- genesHuman %>%
+  mutate(ensID = mapIds(org.Hs.eg.db,
+                            gene_id, "ENSEMBL", "ENTREZID")) %>%
+    filter(!is.na(ensID))
+```
+
+### Picking a node
+```{r}
+node <- tD$selNodes[tD$selNodes > l][10]
+treeSub <- tidytree::tree_subset(tree, node, levels_back = 0)
+txShow <- rownames(tse)[phangorn::Descendants(tree,node)[[1]]]
+
+gs <- txpHuman %>%
+        filter(tx_name %in% treeSub$tip) %>%
+        tibble::as_tibble() %>%
+        dplyr::select(ensID) %>%
+        unlist %>%
+        unique
+
+gTxps <- txpHuman %>%
+        filter(ensID == gs[1]) %>%
+        tibble::as_tibble() %>%
+        dplyr::select(tx_name) %>%
+	filter(tx_name %in% txShow) %>%
+        unlist
+
+g <- genesHuman %>% 
+        filter(ensID == gs[1]) %>%
+        tibble::as_tibble()
+
+txpMin <- gTxps[which.min(mcols(yTxps)[gTxps, "pvalue"])]
+minTInd <- match(txpMin, treeSub$tip)
+```
+
+### Extracting plot for inferential replicates
+```{r}
+cex <- 1.6
+legPos <- "topright"
+pTxp <- as.grob(function() fishpond::plotInfReps(yAll, txpMin, x = "condition", legend=TRUE,
+                              main=txpMin, legendTitle=TRUE, legendCex=cex,	
+                             legendPos = legPos))
+
+pInn <- as.grob(function() fishpond::plotInfReps(yAll, node, x = "condition", legend=TRUE,
+                              main=txpMin, legendTitle=TRUE, legendCex=cex,	
+                             legendPos = legPos))
+
+```
+
+### Extracting plot for tree
+```{r}
+nI <- 5
+size <- 5
+fs <- 20
+pTree <- ggtree(treeSub) +
+        xlim(NA, 80) +
+        geom_tiplab(size=6, hjust=-0.1) +
+        geom_point2(aes(subset=(node==nI), color="red"),
+                size=5, fill='red', show.legend=T) +
+        geom_point2(aes(subset=(node==minTInd), color = "black"),
+                size=5, fill='black', show.legend=T) +
+        geom_cladelab(node = nI, label = "", textcolour="red", barsize=2,
+                      barcolour="red",  fontsize=5, offset = 36) +
+        theme(legend.position = "bottom", legend.text=element_text(size=fs),
+             plot.title=element_text(size=fs, face="bold", hjust=0)) +
+        scale_color_manual(name = "", labels=c("Transcript with the lowest p-value", "Selected Node"),
+               values=c("black", "red"))
+```
+
+### Putting it all together
+```{r}
 ```
 
 ```{r}
