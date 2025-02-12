@@ -1,0 +1,9 @@
+pandoc: 3.1.3
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles:
+  mehenDi: mehenDi.html
+last_built: 2025-02-12T08:59Z
+urls:
+  reference: https://npsdc.github.io/mehenDi/reference
+  article: https://npsdc.github.io/mehenDi/articles
