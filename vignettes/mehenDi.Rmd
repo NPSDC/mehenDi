@@ -51,9 +51,9 @@ samples <- as.vector(outer(c(1:6), c(1,2), function(x,y) paste(x,y,sep='_')))
 quantFiles <- file.path(quantDir, samples, 'quant.sf')
 coldata <- data.frame(files=quantFiles, names=samples, condition=factor(rep(1:2, each=6)))
 tse <- beaveR::buildTSE(treeTermFile = clustFile, coldata = coldata)
-print(tse)
+tse
 tree <- TreeSummarizedExperiment::rowTree(tse)
-print(tree)
+tree
 l <- length(tree$tip)
 ```
 
@@ -67,7 +67,7 @@ yTxps <- fishpond::scaleInfReps(yTxps, quiet=T)
 yTxps <- fishpond::labelKeep(yTxps)
 yTxps <- fishpond::swish(yTxps, x="condition", quiet=T)
 yTxps <- yTxps[match(rownames(yTxps), tree$tip.label),]
-print(sum(mcols(yTxps)[["qvalue"]] < 0.05))
+sum(mcols(yTxps)[["qvalue"]] < 0.05)
 ```
 
 ## Running mehenDi
@@ -97,8 +97,8 @@ yInn <- fishpond::swish(yInn, x="condition", quiet=TRUE)
 pvals <- c(mcols(yTxps)[["pvalue"]], mcols(yInn)[["pvalue"]])
 tD <- mehenDi(yAll, x="condition", pvalues = pvals,
                     minP=0.7, mIRVThresh=0.4, alpha=0.05)
-print(length(tD$selNodes)) ## Total number of selected nodes
-print(sum(tD$selNodes > l)) ## Number of inner nodes that are selected
+length(tD$selNodes) ## Total number of selected nodes
+sum(tD$selNodes > l) ## Number of inner nodes that are selected
 ```
 
 ## Differential gene expression
@@ -108,17 +108,17 @@ gy <- tximeta::summarizeToGene(yAllTxps)
 gy <- fishpond::scaleInfReps(gy, quiet=TRUE)
 gy <- fishpond::labelKeep(gy)
 gy <- fishpond::swish(gy, x="condition", quiet=TRUE)
-print(dim(gy))
-print(table(mcols(gy)[["qvalue"]] < 0.05))
+dim(gy)
+table(mcols(gy)[["qvalue"]] < 0.05)
 ```
 
 ## Exploration of a node output by mehenDi
 ```{r}
 nodeInf <- beaveR::findNodeInformation(yAll, node = tD[["selNodes"]][1], type = "tips")
-print(nodeInf)
+nodeInf
 
 ### Distribution of the height of the nodes output by mehenDi
-print(table(ape::node.depth(tree, 2)[tD[["selNodes"]]]))
+table(ape::node.depth(tree, 2)[tD[["selNodes"]]])
 ```
 
 ## Visualzing the transcript trees for the selected nodes output by mehenDi
@@ -227,6 +227,7 @@ pTree <- ggtree(treeSub) +
 
 ### Putting it all together
 ```{r}
+
 ```
 
 ```{r}

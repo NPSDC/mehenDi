@@ -19,6 +19,13 @@ The main function is:
 \item \code{\link{mehenDi}} - performs tree-based differential testing
 }
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/NPSDC/mehenDi}
+}
+
+}
 \author{
 \strong{Maintainer}: Noor Pratap Singh \email{noorpratap@gmail.com}
 

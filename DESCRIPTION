@@ -15,11 +15,11 @@ Description: This package provides a tree based differential testing for RNA-Seq
   where the tree is obtained from \strong{TreeTerminus}. The candidate nodes can
   consist of both leaves and inner nodes, with inner nodes comprising a susbet of 
   transcripts that exhibit high uncertainty.
-License: GPL-2
+License: MIT + file LICENSE
 Encoding: UTF-8
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 biocViews:
     SummarizedExperiment,
     TreeSummarizedExperiment,
@@ -46,5 +46,18 @@ Suggests:
     testthat (>= 3.0.0),
     knitr,
     tximeta,
+    org.Hs.eg.db,
+    TxDb.Hsapiens.UCSC.hg38.knownGene,
+    plyranges,
+    ggtree,
+    grid,
+    ggplotify,
+    ggplot2,
+    ggpubr,
+    ape,
+    tibble,
+    dplyr,
+    tidytree,
+    plotgardener,
     brainSimSmall
 Config/testthat/edition: 3
