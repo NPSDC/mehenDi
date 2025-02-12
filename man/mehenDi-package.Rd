@@ -3,21 +3,9 @@
 \docType{package}
 \name{mehenDi-package}
 \alias{mehenDi-package}
-\alias{trenDi-package}
 \title{mehenDi: Differential testing on the forest of trees output form TreeTerminus}
 \description{
 This package provides a tree based differential testing for RNA-Seq data, where the tree is obtained from \strong{TreeTerminus}. The candidate nodes can consist of both leaves and inner nodes, with inner nodes comprising a susbet of transcripts that exhibit high uncertainty.
-
-This package provides a tree based differential testing method for RNA-Seq
-data, where the tree is obtained from \strong{TreeTerminus}. The
-candidate nodes can consist of both leaves and inner nodes, with
-inner nodes comprising a subset of transcripts that exhibit high uncertainty.
-}
-\details{
-The main function is:
-\itemize{
-\item \code{\link{mehenDi}} - performs tree-based differential testing
-}
 }
 \seealso{
 Useful links:

@@ -14,7 +14,7 @@
 #' }
 #' @import fishpond
 #' @import TreeSummarizedExperiment
-#' @import beaveR
+#' @importFrom beaveR buildTSE computeSizeFactors scInfReps
 #' @importFrom methods is as slot
 #' @importFrom SummarizedExperiment SummarizedExperiment
 #' assayNames assayNames<- assay assay<- assays assays<-
@@ -28,6 +28,5 @@
 #' @importFrom parallel mclapply
 #' @importFrom stats p.adjust
 #' @importFrom abind abind
-#' @name mehenDi-package
-#' @aliases trenDi-package
+#' @name mehenDi
 NULL
