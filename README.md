@@ -25,9 +25,9 @@ quantFiles <- file.path(quantDir, samples, 'quant.sf')
 coldata <- data.frame(files=quantFiles, names=samples, condition=factor(rep(1:2, each=6)))
 
 tse <- beaveR::buildTSE(treeTermFile = clustFile, coldata = coldata) ## the path to a directory that contains Salmon quantified RNA-Seq samples and the corresponding forest file produced by TreeTerminus
-print(tse)
+tse
 tree <- TreeSummarizedExperiment::rowTree(tse)
-print(tree)
+tree
 l <- length(tree$tip)
 ```
 
@@ -49,8 +49,8 @@ yInn <- fishpond::swish(yInn, x="condition")
 pvals <- c(mcols(yTxps)[["pvalue"]], mcols(yInn)[["pvalue"]])
 tD <- mehenDi::mehenDi(yAll, x="condition", pvalues = pvals,
                     minP=0.7, mIRVThresh=0.4, alpha=0.01)
-print(length(tD$selNodes)) ## Total number of selected nodes
-print(sum(tD$selNodes > l)) ## Number of inner nodes that are selected
+length(tD$selNodes) ## Total number of selected nodes
+sum(tD$selNodes > l) ## Number of inner nodes that are selected
 ```
 The input to **mehenDi** is the *TreeSummarizedExperiment* (tse) object. This object can be created using the package [beaveR](https://github.com/NPSDC/beaver), 
 which requires the same input as [tximeta](https://github.com/thelovelab/tximeta) and the forest file produced by [TreeTerminus](https://github.com/COMBINE-lab/TreeTerminus).
@@ -58,8 +58,8 @@ Among the other inputs are the p-values corresponding to each node in tree belon
 package [fishpond](https://github.com/thelovelab/fishpond).
 
 #### Exploration of the nodes output by mehenDi
-```{r}
+```
 fishpond::plotInfReps(yAll, tD[["selNodes]][1], x="condition")
 nodeInf <- beaveR::findNodeInformation(yAll, node = tD[["selNodes]][1], type = "tips")
-print(nodeInf)
+nodeInf
 ```

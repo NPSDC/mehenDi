@@ -67,7 +67,7 @@ yTxps <- fishpond::scaleInfReps(yTxps, quiet=T)
 yTxps <- fishpond::labelKeep(yTxps)
 yTxps <- fishpond::swish(yTxps, x="condition", quiet=T)
 yTxps <- yTxps[match(rownames(yTxps), tree$tip.label),]
-sum(mcols(yTxps)[["qvalue"]] < 0.05)
+table(mcols(yTxps)[["qvalue"]] < 0.1)
 ```
 
 ## Running mehenDi
@@ -96,7 +96,7 @@ yInn <- fishpond::swish(yInn, x="condition", quiet=TRUE)
 
 pvals <- c(mcols(yTxps)[["pvalue"]], mcols(yInn)[["pvalue"]])
 tD <- mehenDi(yAll, x="condition", pvalues = pvals,
-                    minP=0.7, mIRVThresh=0.4, alpha=0.05)
+                    minP=0.7, mIRVThresh=0.4, alpha=0.1)
 length(tD$selNodes) ## Total number of selected nodes
 sum(tD$selNodes > l) ## Number of inner nodes that are selected
 ```
@@ -109,7 +109,7 @@ gy <- fishpond::scaleInfReps(gy, quiet=TRUE)
 gy <- fishpond::labelKeep(gy)
 gy <- fishpond::swish(gy, x="condition", quiet=TRUE)
 dim(gy)
-table(mcols(gy)[["qvalue"]] < 0.05)
+table(mcols(gy)[["qvalue"]] < 0.1)
 ```
 
 ## Exploration of a node output by mehenDi
@@ -128,12 +128,13 @@ We use the library `plotGardner` for plotting the transcripts of a gene and `ggt
 ```{r}
 suppressPackageStartupMessages(library(org.Hs.eg.db))
 suppressPackageStartupMessages(library(TxDb.Hsapiens.UCSC.hg38.knownGene))
+suppressPackageStartupMessages(library(plotgardener))
 suppressPackageStartupMessages(library(plyranges))
 suppressPackageStartupMessages(library(ggtree))
-suppressPackageStartupMessages(library("grid"))
-suppressPackageStartupMessages(library("ggplotify"))
-suppressPackageStartupMessages(library("ggplot2"))
-suppressPackageStartupMessages(library("ggpubr"))
+suppressPackageStartupMessages(library(grid))
+suppressPackageStartupMessages(library(ggplotify))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(ggpubr))
 
 txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
 txpHuman <- transcripts(txdb)
@@ -166,7 +167,7 @@ genesHuman <- genesHuman %>%
 
 ### Picking a node
 ```{r}
-node <- tD$selNodes[tD$selNodes > l][10]
+node <- tD$selNodes[tD$selNodes > l][7]
 treeSub <- tidytree::tree_subset(tree, node, levels_back = 0)
 txShow <- rownames(tse)[phangorn::Descendants(tree,node)[[1]]]
 
@@ -185,7 +186,7 @@ gTxps <- txpHuman %>%
         unlist
 
 g <- genesHuman %>% 
-        filter(ensID == gs[1]) %>%
+        filter(ensID == gs[1], strand == "+") %>%
         tibble::as_tibble()
 
 txpMin <- gTxps[which.min(mcols(yTxps)[gTxps, "pvalue"])]
@@ -207,9 +208,9 @@ pInn <- as.grob(function() fishpond::plotInfReps(yAll, node, x = "condition", le
 
 ### Extracting plot for tree
 ```{r}
-nI <- 5
 size <- 5
 fs <- 20
+nI <- 5
 pTree <- ggtree(treeSub) +
         xlim(NA, 80) +
         geom_tiplab(size=6, hjust=-0.1) +
@@ -226,7 +227,61 @@ pTree <- ggtree(treeSub) +
 ```
 
 ### Putting it all together
-```{r}
+```{r, fig.width=17, fig.height=17}
+pageCreate(width = 17, height = 17, showGuides = FALSE, default.units = "inches")
+
+par <- plotgardener::pgParams(
+          chrom = as.character(g[["seqnames"]]), 
+          chromstart = g[["start"]], chromend = g[["end"]],
+          assembly = "hg38", just = c("left", "bottom"), 
+        default.units = "inches", fontsize = fs-7
+        )
+    
+hilite <- data.frame(transcript=txShow, 
+                     color=rep("red", length(txShow))
+                             )
+parText <- pgParams(
+    just = c("left"), fontsize = fs
+)#, fontface = "bold")
+
+plotText(label="A) Transcripts mapping to gene PDE4DIP", x = 0.5, y = 0.5,
+        params = parText)
+
+plotTranscripts(
+    params = par, x = 1.5, y = 9.8, width = 5, height = 9, 
+    spaceHeight=1, boxHeight=0.1,
+#     labels = "transcript", fill="blue",
+    transcriptHighlights = hilite
+)
+
+plotGenomeLabel(
+  params = par, x = 0.5, y = 10.1, length=6,
+  just = c("left", "top"), fontsize=fs
+)
+
+
+plotText(label="B) Tree representing the transcripts covered by gene\n PDE4DIP", 
+         x = 8, y = 0.5, params = parText)
+plotGG(
+    plot = pTree,
+    x = 7.7, y = 2, width = 8, height=6
+)
+
+plotText(label="C) Scaled inferential replicates for the \ntranscript ENST00000369356.8", 
+         x = 0.5, y = 11, params = parText)
+
+plotGG(
+    plot = pTxp,
+    x = 0.5, y = 11.5, width = 6, height=6
+)
+
+plotText(label="D) Scaled inferential replicates for the selected node", 
+         x = 7.8, y = 11, params = parText)
+
+plotGG(
+    plot = pInn,
+    x = 8.3, y = 11.5, width = 6, height=6
+)
 
 ```
 
