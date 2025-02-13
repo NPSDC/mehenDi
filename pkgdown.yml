@@ -3,7 +3,7 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   mehenDi: mehenDi.html
-last_built: 2025-02-12T09:14Z
+last_built: 2025-02-13T05:09Z
 urls:
   reference: https://npsdc.github.io/mehenDi/reference
   article: https://npsdc.github.io/mehenDi/articles
