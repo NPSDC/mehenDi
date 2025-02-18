@@ -70,11 +70,20 @@ yTxps <- yTxps[match(rownames(yTxps), tree$tip.label),]
 table(mcols(yTxps)[["qvalue"]] < 0.1)
 ```
 
+## Differential gene expression
+```{r eval=TRUE, message=FALSE, warning=FALSE}
+yAllTxps <- tximeta::tximeta(coldata)
+gy <- tximeta::summarizeToGene(yAllTxps)
+gy <- fishpond::scaleInfReps(gy, quiet=TRUE)
+gy <- fishpond::labelKeep(gy)
+gy <- fishpond::swish(gy, x="condition", quiet=TRUE)
+dim(gy)
+table(mcols(gy)[["qvalue"]] < 0.1)
+```
+
 ## Running mehenDi
-We next run *mehenDi* on the object *tse* created above. The pipeline is similar to Swish, where first
-the data is normalized (we used median-ratio scaling) in this example. It has been broken down
-into two steps, in the first we compute the size factors and then use the computed size factors for scaling the
-inferential replicates. We have used *Swish* for computing the pvalues, however we compute them separately for
+We next run *mehenDi* on the TreeSummarizedExperiment object *tse* created above. The pipeline is similar to Swish, where first
+the data is normalized (we used median-ratio scaling in this example). We have used *Swish* for computing the p-values, however we compute them separately for
 the leaves and the inner nodes. This is because due to lower uncertainty, the width of the distribution of the 
 test-statistic of inner nodes is wider and thus have smaller p-values compared to the inner nodes.
 
@@ -83,7 +92,7 @@ that has a p-value less than a certain threshold (governed by \strong(alpha)) is
 different criteria. First, nodes should consist of atleast one child node that has a p-value larger than
 a threshold, otherwise we are overaggregating. We then check if all the underlying descendant nodes that have a 
 confident direction of sign-change have the same direction change between conditions. The confidence is determined
-by the \strong(minP) parameters and looks at the inferential replicates. Finally, we also want that the children nodes of a selected node, to have uncertain abundance estimates (governed by \strong(meanInfRV)).
+by the \strong(minP) parameters and looks at the inferential replicates. Finally, we also want that the child nodes of a selected node, to have uncertain abundance estimates (governed by \strong(meanInfRV)).
 
 ```{r eval=TRUE, message=FALSE, warning=FALSE}
 suppressPackageStartupMessages(library(mehenDi))
@@ -99,42 +108,68 @@ tD <- mehenDi(yAll, x="condition", pvalues = pvals,
                     minP=0.7, mIRVThresh=0.4, alpha=0.1)
 length(tD$selNodes) ## Total number of selected nodes
 sum(tD$selNodes > l) ## Number of inner nodes that are selected
+table(ape::node.depth(tree, 2)[tD[["selNodes"]]]) ## Distribution of the height of the nodes output by mehenDi
 ```
 
-## Differential gene expression
-```{r eval=TRUE, message=FALSE, warning=FALSE}
-yAllTxps <- tximeta::tximeta(coldata)
-gy <- tximeta::summarizeToGene(yAllTxps)
-gy <- fishpond::scaleInfReps(gy, quiet=TRUE)
-gy <- fishpond::labelKeep(gy)
-gy <- fishpond::swish(gy, x="condition", quiet=TRUE)
-dim(gy)
-table(mcols(gy)[["qvalue"]] < 0.1)
-```
+## Visualizing the node output by mehenDi
+We next visualize a node that is output by *mehenDi*. We plot the transcripts in the pileup style corresponding to the gene that is uniquely mapped by the transcripts for that node and the corresponding transcript-tree. We also plot the inferential replicates between the two conditions, for both the transcript with the most significant p-value and the node output by *mehenDi*. While a lot of different libraries and functions are utilized to create this plot, we use `plotGarderner` library to organize all the plots together.
 
-## Exploration of a node output by mehenDi
+
+### Transcript tree for a mehenDi node
+We first create a tree for a selected *mehenDi* inner node using the library `ggtree`
+
 ```{r}
-nodeInf <- beaveR::findNodeInformation(yAll, node = tD[["selNodes"]][1], type = "tips")
-nodeInf
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(ggtree))
+node <- tD$selNodes[tD$selNodes > l][7]
+treeSub <- tidytree::tree_subset(tree, node, levels_back = 0)
+txShow <- rownames(tse)[phangorn::Descendants(tree,node)[[1]]] ## Transcript names for the transcripts in the tree
+txpMin <- treeSub$tip.label[which.min(mcols(yTxps)[treeSub$tip.label, "pvalue"])]
+minTInd <- match(txpMin, treeSub$tip)
 
-### Distribution of the height of the nodes output by mehenDi
-table(ape::node.depth(tree, 2)[tD[["selNodes"]]])
+size <- 5
+fs <- 20
+nI <- 5
+
+pTree <- ggtree(treeSub) +
+        xlim(NA, 80) +
+        geom_tiplab(size=6, hjust=-0.1) +
+        geom_point2(aes(subset=(node==nI), color="red"),
+                size=5, fill='red', show.legend=T) +
+        geom_point2(aes(subset=(node==minTInd), color = "black"),
+                size=5, fill='black', show.legend=T) +
+        geom_cladelab(node = nI, label = "", textcolour="red", barsize=2,
+                      barcolour="red",  fontsize=5, offset = 36) +
+        theme(legend.position = "bottom", legend.text=element_text(size=fs),
+             plot.title=element_text(size=fs, face="bold", hjust=0)) +
+        scale_color_manual(name = "", labels=c("Transcript with the lowest p-value", "Selected Node"),
+               values=c("black", "red"))
 ```
 
-## Visualzing the transcript trees for the selected nodes output by mehenDi
-We use the library `plotGardner` for plotting the transcripts of a gene and `ggtree` for the corresponding trees
+### Plots for inferential replicates
+We next store the plots for the inferential replicates using `fishpond`'s *plotInfReps* function for both the mehenDi node and its underlying transcript that has the lowest p-value.
+```{r}
+suppressPackageStartupMessages(library(ggplotify))
+cex <- 1.6
+legPos <- "topright"
+pTxp <- as.grob(function() fishpond::plotInfReps(yAll, txpMin, x = "condition", legend=TRUE,
+                              main=txpMin, legendTitle=TRUE, legendCex=cex,	
+                             legendPos = legPos))
 
-### Loading packages and preparing data for plotting
+pInn <- as.grob(function() fishpond::plotInfReps(yAll, node, x = "condition", legend=TRUE,
+                              main=paste0("Node",node), legendTitle=TRUE, legendCex=cex,	
+                             legendPos = legPos))
+```
+
+### Pileup style plot and putting all the plots together
+We use the *plotTranscripts* function in the `plotGardener` package to create the pileup style plot. However, we have to go through a series of steps before we can make use of this function.
+
+#### Extract gene, transcripts and their ranges in txdb for a given node
+We use *txdb* and load the reference corresponding to *hg38* and then accordingly extract the information corresponding to the *mehenDi* node.
 ```{r}
 suppressPackageStartupMessages(library(org.Hs.eg.db))
 suppressPackageStartupMessages(library(TxDb.Hsapiens.UCSC.hg38.knownGene))
-suppressPackageStartupMessages(library(plotgardener))
 suppressPackageStartupMessages(library(plyranges))
-suppressPackageStartupMessages(library(ggtree))
-suppressPackageStartupMessages(library(grid))
-suppressPackageStartupMessages(library(ggplotify))
-suppressPackageStartupMessages(library(ggplot2))
-suppressPackageStartupMessages(library(ggpubr))
 
 txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
 txpHuman <- transcripts(txdb)
@@ -163,76 +198,31 @@ genesHuman <- genesHuman %>%
   mutate(ensID = mapIds(org.Hs.eg.db,
                             gene_id, "ENSEMBL", "ENTREZID")) %>%
     filter(!is.na(ensID))
-```
 
-### Picking a node
-```{r}
-node <- tD$selNodes[tD$selNodes > l][7]
-treeSub <- tidytree::tree_subset(tree, node, levels_back = 0)
-txShow <- rownames(tse)[phangorn::Descendants(tree,node)[[1]]]
-
-gs <- txpHuman %>%
+gene <- txpHuman %>%
         filter(tx_name %in% treeSub$tip) %>%
         tibble::as_tibble() %>%
         dplyr::select(ensID) %>%
         unlist %>%
         unique
 
-gTxps <- txpHuman %>%
-        filter(ensID == gs[1]) %>%
-        tibble::as_tibble() %>%
-        dplyr::select(tx_name) %>%
-	filter(tx_name %in% txShow) %>%
-        unlist
-
-g <- genesHuman %>% 
-        filter(ensID == gs[1], strand == "+") %>%
+## We have selected the transcripts only in the positive strand for this gene, since the transcripts corresponding to mehenDi node belong to this strand and plotting transcripts for both strands, would make the figure very big
+gDB <- genesHuman %>% 
+        filter(ensID == gene, strand == "+") %>%
         tibble::as_tibble()
-
-txpMin <- gTxps[which.min(mcols(yTxps)[gTxps, "pvalue"])]
-minTInd <- match(txpMin, treeSub$tip)
 ```
 
-### Extracting plot for inferential replicates
-```{r}
-cex <- 1.6
-legPos <- "topright"
-pTxp <- as.grob(function() fishpond::plotInfReps(yAll, txpMin, x = "condition", legend=TRUE,
-                              main=txpMin, legendTitle=TRUE, legendCex=cex,	
-                             legendPos = legPos))
 
-pInn <- as.grob(function() fishpond::plotInfReps(yAll, node, x = "condition", legend=TRUE,
-                              main=txpMin, legendTitle=TRUE, legendCex=cex,	
-                             legendPos = legPos))
-```
-
-### Extracting plot for tree
-```{r}
-size <- 5
-fs <- 20
-nI <- 5
-pTree <- ggtree(treeSub) +
-        xlim(NA, 80) +
-        geom_tiplab(size=6, hjust=-0.1) +
-        geom_point2(aes(subset=(node==nI), color="red"),
-                size=5, fill='red', show.legend=T) +
-        geom_point2(aes(subset=(node==minTInd), color = "black"),
-                size=5, fill='black', show.legend=T) +
-        geom_cladelab(node = nI, label = "", textcolour="red", barsize=2,
-                      barcolour="red",  fontsize=5, offset = 36) +
-        theme(legend.position = "bottom", legend.text=element_text(size=fs),
-             plot.title=element_text(size=fs, face="bold", hjust=0)) +
-        scale_color_manual(name = "", labels=c("Transcript with the lowest p-value", "Selected Node"),
-               values=c("black", "red"))
-```
-
-### Putting it all together
+#### Putting it all together
 ```{r, fig.width=17, fig.height=17}
+suppressPackageStartupMessages(library(plotgardener))
+suppressPackageStartupMessages(library(grid))
+
 pageCreate(width = 17, height = 17, showGuides = FALSE, default.units = "inches")
 
-par <- plotgardener::pgParams(
-          chrom = as.character(g[["seqnames"]]), 
-          chromstart = g[["start"]], chromend = g[["end"]],
+par <- pgParams(
+          chrom = as.character(gDB[["seqnames"]]), 
+          chromstart = gDB[["start"]], chromend = gDB[["end"]],
           assembly = "hg38", just = c("left", "bottom"), 
         default.units = "inches", fontsize = fs-7
         )
