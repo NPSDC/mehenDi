@@ -1,6 +1,6 @@
 Package: mehenDi
 Title: Differential testing on the forest of trees output form TreeTerminus
-Version: 0.99.0
+Version: 0.99.1
 Authors@R: c(
     person("Noor Pratap", "Singh", email="noorpratap@gmail.com", 
       role = c("aut", "cre")),
